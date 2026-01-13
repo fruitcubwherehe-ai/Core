@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Copy of REDCHAIN HABIT-CORE",
+  "description": "An ultra-elite, gamified habit tracker featuring Obsidian-Minimalism, OLED black aesthetics, and a progression-based color vault.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
