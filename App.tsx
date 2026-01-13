@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AppScreen, GameState, Habit, Proof } from './types';
-import { INITIAL_THEMES, RANKS, XP_PER_RANK, POINTS_PER_COMPLETION, MISS_PENALTY } from './constants';
-import MainMenu from './components/MainMenu';
-import Dashboard from './components/Dashboard';
-import Settings from './components/Settings';
-import SplashScreen from './components/SplashScreen';
-import WeeklyReview from './components/WeeklyReview';
-import VerificationModal from './components/VerificationModal';
-import ProofLogView from './components/ProofLogView';
-import ProgressView from './components/ProgressView';
-import { saveProofImage, deleteProofImage } from './storage';
+import { AppScreen, GameState, Habit, Proof } from './types.ts';
+import { INITIAL_THEMES, RANKS, XP_PER_RANK, POINTS_PER_COMPLETION, MISS_PENALTY } from './constants.ts';
+import MainMenu from './components/MainMenu.tsx';
+import Dashboard from './components/Dashboard.tsx';
+import Settings from './components/Settings.tsx';
+import SplashScreen from './components/SplashScreen.tsx';
+import WeeklyReview from './components/WeeklyReview.tsx';
+import VerificationModal from './components/VerificationModal.tsx';
+import ProofLogView from './components/ProofLogView.tsx';
+import ProgressView from './components/ProgressView.tsx';
+import { saveProofImage } from './storage.ts';
 
 const STORAGE_KEY = 'REDCHAIN_HABIT_CORE_STATE_V4';
 
@@ -23,8 +23,24 @@ const getLocalDateString = (date: Date = new Date()) => {
 const App: React.FC = () => {
   const [screen, setScreen] = useState<AppScreen>(AppScreen.SPLASH);
   const [gameState, setGameState] = useState<GameState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure critical fields exist
+        return {
+          ...parsed,
+          habits: parsed.habits || [],
+          stats: parsed.stats || { points: 0, totalXP: 0, rankIndex: 0 },
+          themes: parsed.themes || INITIAL_THEMES,
+          activeThemeId: parsed.activeThemeId || 'red',
+          proofLog: parsed.proofLog || [],
+          volume: typeof parsed.volume === 'number' ? parsed.volume : 0.5
+        };
+      }
+    } catch (e) {
+      console.error("Corrupted state detected, resetting to defaults.", e);
+    }
     return {
       habits: [],
       stats: { points: 0, totalXP: 0, rankIndex: 0 },
@@ -236,10 +252,8 @@ const App: React.FC = () => {
             onVolumeChange={setGlobalVolume}
             onReset={handleReset}
             onImport={(newState) => {
-              // Ensure we merge to avoid breaking compatibility
               setGameState({ ...newState });
               setScreen(AppScreen.MENU);
-              // Force local storage save to be safe
               localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             }}
           />

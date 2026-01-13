@@ -1,10 +1,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GameState, AppScreen } from '../types';
-import StatBlock from './StatBlock';
-import HabitCard from './HabitCard';
-import QuoteTerminal from './QuoteTerminal';
+import { GameState, AppScreen } from '../types.ts';
+import StatBlock from './StatBlock.tsx';
+import HabitCard from './HabitCard.tsx';
+import QuoteTerminal from './QuoteTerminal.tsx';
 import { ChevronLeft, Plus, LayoutGrid, CalendarDays, Image as ImageIcon, TrendingUp } from 'lucide-react';
 
 interface DashboardProps {

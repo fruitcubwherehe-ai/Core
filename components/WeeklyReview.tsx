@@ -1,7 +1,7 @@
 
 import React, { useMemo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GameState } from '../types';
+import { GameState } from '../types.ts';
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 import { Trophy, Target, Award, ShieldCheck, Zap, Bot, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
@@ -38,10 +38,13 @@ const WeeklyReview: React.FC<WeeklyReviewProps> = ({ gameState, onClose }) => {
 
   useEffect(() => {
     async function getAIFeedback() {
-      if (process.env.API_KEY) {
+      // Safe check for process and API_KEY to prevent ReferenceErrors
+      const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : null;
+      
+      if (apiKey) {
         setIsAiLoading(true);
         try {
-          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          const ai = new GoogleGenAI({ apiKey });
           const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Act as a high-performance elite coach. 
@@ -58,6 +61,8 @@ const WeeklyReview: React.FC<WeeklyReviewProps> = ({ gameState, onClose }) => {
         } finally {
           setIsAiLoading(false);
         }
+      } else {
+        setAiFeedback("System error: Neural link unavailable. (Missing API Key)");
       }
     }
     getAIFeedback();
